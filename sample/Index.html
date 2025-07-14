@@ -142,6 +142,11 @@
         }
     }
 
+    const model = "https://playground.babylonjs.com/scenes/skull.babylon";
+    const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
+
+    asset.addAllToScene();
+
     return scene;
 
 }

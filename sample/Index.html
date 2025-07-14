@@ -146,9 +146,14 @@
     const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
 
     asset.addAllToScene();
-    
 
-    console.log(asset.animationGroups);
+    // Scaling the dinosaur
+    asset.meshes.forEach((mesh) => {
+        if(mesh instanceof BABYLON.Mesh)
+        {
+            mesh.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+        }
+    });
 
     return scene;
 

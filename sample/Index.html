@@ -169,7 +169,16 @@
 
         const pos = dinoMesh.getBoundingInfo().boundingSphere.centerWorld;
 
-        debugText.text = pos;
+        // Project 3D to 2D
+        const projected = BABYLON.Vector3.Project(
+            pos,
+            BABYLON.Matrix.Identity(),
+            scene.getTransformMatrix(),
+            camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight())
+        );
+
+        debugText.text = projected;
+        
     });
 
 

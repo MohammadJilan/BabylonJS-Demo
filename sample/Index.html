@@ -145,7 +145,13 @@
     const model = "assets/animated_triceratops_skeleton.glb";
     const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
 
-    asset.addAllToScene();
+    // Scaling the dinosaur
+    asset.meshes.forEach((mesh) => {
+        if(mesh instanceof BABYLON.Mesh)
+        {
+            mesh.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+        }
+    });
 
     console.log(asset.animationGroups);
 

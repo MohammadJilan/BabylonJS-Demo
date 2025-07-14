@@ -48,6 +48,7 @@
     </head>
     <body>
         <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+        <div id="dino-label">Dino Info 🦖</div>
         <script>
                     var canvas = document.getElementById("renderCanvas");
 
@@ -127,7 +128,7 @@
     let markerRotation = new BABYLON.Quaternion();
 
     hitTest.onHitTestResultObservable.add((result) => {
-        if(result.length)
+        if(result.length && isPlaced == false)
         {
             dot.isVisible = true;
             result[0].transformationMatrix.decompose(dot.scaling, dot.rotationQuaternion, dot.position);
@@ -161,6 +162,15 @@
 
         }
     }
+
+    scene.registerAfterRender(() => {
+        const dinoMesh = asset.meshes[0];
+        if (!dinoMesh || !dinoMesh.isVisible) return;
+
+        const pos = dinoMesh.getBoundingInfo().boundingSphere.centerWorld;
+
+        debugText.text = pos;
+    });
 
 
     return scene;

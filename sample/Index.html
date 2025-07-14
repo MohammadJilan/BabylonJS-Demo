@@ -86,7 +86,13 @@
 
     asset.addAllToScene();
 
-    
+    // Scaling the dinosaur
+    /*asset.meshes.forEach((mesh) => {
+        if(mesh instanceof BABYLON.Mesh)
+        {
+            mesh.isVisible = false;
+        }
+    });*/
 
     // Adding debug text.
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -143,7 +149,7 @@
         if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR)
         {
 
-            asset.meshes.forEach((mesh) => {
+            /*asset.meshes.forEach((mesh) => {
                 if(mesh instanceof BABYLON.Mesh)
                 {
                     mesh.isVisible = true;
@@ -151,7 +157,7 @@
                     mesh.rotationQuaternion = markerRotation.clone();
                     mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
                 }
-            });
+            });*/
 
         }
     }

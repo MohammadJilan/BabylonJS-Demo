@@ -163,14 +163,7 @@
         }
     }
 
-    scene.registerAfterRender(() => {
-        const dinoMesh = asset.meshes[0];
-        if (!dinoMesh || !dinoMesh.isVisible) return;
-
-        const pos = dinoMesh.getBoundingInfo().boundingSphere.centerWorld;
-
-        debugText.text = pos;
-    });
+    
 
 
     return scene;

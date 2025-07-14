@@ -86,13 +86,7 @@
 
     asset.addAllToScene();
 
-    // Scaling the dinosaur
-    asset.meshes.forEach((mesh) => {
-        if(mesh instanceof BABYLON.Mesh)
-        {
-            mesh.isVisible = false;
-        }
-    });
+    
 
     // Adding debug text.
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");

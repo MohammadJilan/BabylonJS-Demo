@@ -163,6 +163,8 @@
         }
     }
 
+    const labelDiv = document.getElementById("dino-label");
+
     scene.registerAfterRender(() => {
         const dinoMesh = asset.meshes[0];
         if (!dinoMesh || !dinoMesh.isVisible) return;
@@ -177,8 +179,8 @@
             camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight())
         );
 
-        debugText.text = projected;
-        
+        debugText.text = labelDiv;
+
     });
 
 

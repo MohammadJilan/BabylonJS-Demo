@@ -78,6 +78,11 @@
     const light = new BABYLON.HemisphericLight("light1", 
         new BABYLON.Vector3(0,1,0));
 
+    // Public vars
+    let isPlaced = false;
+
+    // end
+
     /*const box = BABYLON.MeshBuilder.CreateBox("box1", {});
     box.isVisible = false;*/
 
@@ -138,9 +143,11 @@
 
     scene.onPointerDown = (evt, pickInfo) => {
         debugText.text = "xr.baseExperience.state";
-        if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR)
+        if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR && isPlaced == false)
         {
+            isPlaced = true;
             asset.addAllToScene();
+            dot.isVisible = false;
 
             asset.meshes.forEach((mesh) => {
                 if(mesh instanceof BABYLON.Mesh)

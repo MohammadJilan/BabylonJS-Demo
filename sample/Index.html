@@ -47,7 +47,9 @@
         </style>
     </head>
     <body>
-        <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+        <div id="canvasZone"><canvas id="renderCanvas">
+            <p>Hello world</p>
+        </canvas></div>
         <div id="dino-label">Dino Info 🦖</div>
         <script>
                     var canvas = document.getElementById("renderCanvas");
@@ -180,6 +182,11 @@
         );
 
         debugText.text = labelDiv;
+
+        // Position the label
+        //labelDiv.style.display = "block";
+        //labelDiv.style.left = `${projected.x}px`;
+        //labelDiv.style.top = `${projected.y}px`;
 
     });
 

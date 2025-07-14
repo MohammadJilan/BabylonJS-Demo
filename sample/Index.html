@@ -44,21 +44,10 @@
                 width: 100%;
                 height: 100%;
             }
-            #dino-label {
-                position: absolute;
-                color: white;
-                background-color: rgba(0, 0, 0, 0.7);
-                padding: 6px 12px;
-                border-radius: 8px;
-                font-family: sans-serif;
-                pointer-events: none;
-                
-              }
         </style>
     </head>
     <body>
         <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
-        <div id="dino-label">Dino Info 🦖</div>
         <script>
                     var canvas = document.getElementById("renderCanvas");
 
@@ -172,31 +161,6 @@
 
         }
     }
-
-    const labelDiv = document.getElementById("dino-label");
-
-    scene.registerAfterRender(() => {
-        const dinoMesh = asset.meshes[0];
-        if (!dinoMesh || !dinoMesh.isVisible) return;
-
-        const pos = dinoMesh.getBoundingInfo().boundingSphere.centerWorld;
-
-        // Project 3D to 2D
-        const projected = BABYLON.Vector3.Project(
-            pos,
-            BABYLON.Matrix.Identity(),
-            scene.getTransformMatrix(),
-            camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight())
-        );
-
-        debugText.text = labelDiv;
-
-        // Position the label
-        labelDiv.style.display = "block";
-        labelDiv.style.left = `${projected.x}px`;
-        labelDiv.style.top = `${projected.y}px`;
-
-    });
 
 
     return scene;

@@ -145,6 +145,7 @@
     const model = "assets/animated_triceratops_skeleton.glb";
     const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
 
+    asset.addAllToScene();
     
 
     console.log(asset.animationGroups);

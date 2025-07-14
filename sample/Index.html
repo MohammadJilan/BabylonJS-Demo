@@ -78,8 +78,21 @@
     const light = new BABYLON.HemisphericLight("light1", 
         new BABYLON.Vector3(0,1,0));
 
-    const box = BABYLON.MeshBuilder.CreateBox("box1", {});
-    box.isVisible = false;
+    /*const box = BABYLON.MeshBuilder.CreateBox("box1", {});
+    box.isVisible = false;*/
+
+    const model = "assets/animated_triceratops_skeleton.glb";
+    const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
+
+    asset.addAllToScene();
+
+    // Scaling the dinosaur
+    asset.meshes.forEach((mesh) => {
+        if(mesh instanceof BABYLON.Mesh)
+        {
+            mesh.isVisible = false;
+        }
+    });
 
     // Adding debug text.
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -135,25 +148,20 @@
         debugText.text = "xr.baseExperience.state";
         if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR)
         {
-            box.isVisible = true;
-            box.position = markerPosition.clone();
-            box.rotationQuaternion = markerRotation.clone();
-            box.scaling = markerScaling.clone();
+
+            asset.meshes.forEach((mesh) => {
+                if(mesh instanceof BABYLON.Mesh)
+                {
+                    mesh.isVisible = true;
+                    mesh.position = markerPosition.clone();
+                    mesh.rotationQuaternion = markerRotation.clone();
+                    mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+                }
+            });
+
         }
     }
 
-    const model = "assets/animated_triceratops_skeleton.glb";
-    const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
-
-    asset.addAllToScene();
-
-    // Scaling the dinosaur
-    asset.meshes.forEach((mesh) => {
-        if(mesh instanceof BABYLON.Mesh)
-        {
-            mesh.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
-        }
-    });
 
     return scene;
 

@@ -63,135 +63,255 @@
         var scene = null;
         var sceneToRender = null;
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = async function () {
+    
+    // =============== ENVIRONMENT =========================
 
-        // ADD CODE HERE =================================================================================
+    var scene = new BABYLON.Scene(engine);
+    scene.debugLayer.show();
 
-        const createScene = async() => {
-    const scene = new BABYLON.Scene(engine);
-
-    // camera
-    const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 3, 3), scene);
+    
+    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
-
     camera.attachControl(canvas, true);
-
-    const light = new BABYLON.HemisphericLight("light1", 
-        new BABYLON.Vector3(0,1,0));
-
-    // Public vars
-    let isPlaced = false;
-
-    // end
-
-    /*const box = BABYLON.MeshBuilder.CreateBox("box1", {});
-    box.isVisible = false;*/
-
-    const model = "assets/animated_triceratops_skeleton.glb";
-    const asset = await BABYLON.LoadAssetContainerAsync(model, scene);
+    
+    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    light.intensity = 0.7;
 
 
+    // =============== ANIMATION =========================
 
-    // Adding debug text.
-    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    var debugText = new BABYLON.GUI.TextBlock();
-    debugText.text = "NA";
-    debugText.color = "green";
-    advancedTexture.addControl(debugText);
+    const startWorldYAnimation = (mesh, deltaX, deltaY, deltaZ, onComplete) => {
+        const startPos = mesh.getAbsolutePosition().clone();
+        const endPos = startPos.clone();
+        endPos.x += deltaX;
+        endPos.y += deltaY;
+        endPos.z += deltaZ;
+
+        const anim = new BABYLON.Animation(
+            "worldYAnim",
+            "position",
+            30,
+            BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        const keys = [
+            { frame: 0, value: startPos },
+            { frame: 30, value: endPos }
+        ];
+
+        anim.setKeys(keys);
+        mesh.animations = [anim];
+
+        const animatable = scene.beginAnimation(mesh, 0, 30, false);
+
+        animatable.onAnimationEnd = () => {
+            if (onComplete){
+                onComplete();
+            }
+        };
 
 
-    // Enabling Augmented Reality
-    const xr = await scene.createDefaultXRExperienceAsync(
-        {
-            uiOptions:
-            {
-                sessionMode: "immersive-ar",
-            },
-            optionalFeatures: ["hit-test"],
-        }
-    );
+    };
 
-    // Enabling hit test
+
+
+    // =============== GLOBAL VARIABLES =========================
+    const xr = await scene.createDefaultXRExperienceAsync({uiOptions: {sessionMode: "immersive-ar",},optionalFeatures: ["hit-test"],});
     const featureManager = xr.baseExperience.featuresManager;
-    const hitTest = featureManager.enableFeature(BABYLON.WebXRHitTest, 
-        "latest");
-
-
-    // Creating dot
-    const dot = BABYLON.MeshBuilder.CreateTorus('marker', { diameter: 0.15, thickness: 0.05, tessellation: 32 });
-
-    debugText.text = "X5";
-    dot.isVisible = false;
-
+    const hitTest = featureManager.enableFeature(BABYLON.WebXRHitTest, "latest");
+    const dot = BABYLON.MeshBuilder.CreateTorus('marker', { diameter: 0.09, thickness: 0.03, tessellation: 32 });
     let markerPosition = new BABYLON.Vector3();
     let markerScaling = new BABYLON.Vector3();
     let markerRotation = new BABYLON.Quaternion();
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    let isPlaced = false;
+    const customer = await BABYLON.LoadAssetContainerAsync("assets/man_in_suit.glb", scene);
+    const customerDialog = new BABYLON.GUI.Rectangle("customer_dialog");
+    var nextButton = BABYLON.GUI.Button.CreateSimpleButton("next_button", "Next");
+    const car = await BABYLON.LoadAssetContainerAsync("assets/low-poly_truck_car_drifter.glb", scene);
 
-    hitTest.onHitTestResultObservable.add((result) => {
-        if(result.length && isPlaced == false)
-        {
-            dot.isVisible = true;
-            result[0].transformationMatrix.decompose(dot.scaling, dot.rotationQuaternion, dot.position);
-            
-            result[0].transformationMatrix.decompose(markerScaling, markerRotation, markerPosition);
-            debugText.text = markerPosition;
-        }else
-        {
-            dot.isVisible = false;
-        }
-    });
+    
+
+    // =============== SCENES =========================
+
+    const placeMarker = () => {
+        dot.isVisible = false;
 
 
-    const label = new BABYLON.GUI.Rectangle("label");
-    label.background = "black"
-    label.height = "60px";
-    label.alpha = 0.5;
-    label.width = "200px";
-    label.cornerRadius = 20;
-    label.thickness = 1;
-    label.zIndex = 5;
-
-    advancedTexture.addControl(label);
-
-    const caption = new BABYLON.GUI.TextBlock();
-    label.addControl(caption);
-
-    scene.onPointerDown = (evt, pickInfo) => {
-        debugText.text = "xr.baseExperience.state";
-        if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR && isPlaced == false)
-        {
-            isPlaced = true;
-            asset.addAllToScene();
-            dot.isVisible = false;
-
-            label.linkWithMesh(asset.meshes[0]);
-
-            asset.meshes.forEach((mesh) => {
-                if(mesh instanceof BABYLON.Mesh)
-                {
-                    mesh.isVisible = true;
-                    mesh.position = markerPosition.clone();
-                    mesh.rotationQuaternion = markerRotation.clone();
-                    mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
-                }
-            });
-
-        }
+        hitTest.onHitTestResultObservable.add((result) => {
+            if(result.length && isPlaced == false)
+            {
+                dot.isVisible = true;
+                result[0].transformationMatrix.decompose(markerScaling, markerRotation, markerPosition);
+                dot.position.copyFrom(markerPosition);
+            }else
+            {
+                dot.isVisible = false;
+            }
+        });
     }
 
 
+
+    const scene1 = async() => {
+
+        customerDialog.background = "black"
+        customerDialog.height = "300px";
+        customerDialog.alpha = 0.5;
+        customerDialog.width = "600px";
+        customerDialog.cornerRadius = 20;
+        customerDialog.thickness = 1;
+        customerDialog.zIndex = 5;
+
+        const panel = new BABYLON.GUI.StackPanel();
+        panel.width = "600px";
+        panel.height = "300px";
+        
+
+        const caption = new BABYLON.GUI.TextBlock();
+        caption.color = "white";
+        caption.text = "Hi! I'm terry! Could you please do a maintenance check on my car?";
+        caption.fontSize = "30px";
+        caption.textWrapping = true;
+
+        nextButton.background = "gray";
+        nextButton.height = "0.2";
+        nextButton.width = "0.2";
+        nextButton.fontSize = "20px";
+
+        panel.addControl(caption);
+        panel.addControl(nextButton);
+        customerDialog.addControl(panel);
+
+        advancedTexture.addControl(customerDialog);
+        customerDialog.isVisible = false;
+
+        scene.onPointerDown = (evt, pickInfo) => {
+            if(hitTest && xr.baseExperience.state === BABYLON.WebXRState.IN_XR && isPlaced == false)
+            {
+                dot.isVisible = false;
+                customerDialog.isVisible = true;
+                isPlaced = true;
+
+                customer.addAllToScene();
+                customerDialog.linkWithMesh(customer.meshes[0]);
+
+
+                customer.meshes.forEach((mesh) => {
+                    if(mesh instanceof BABYLON.Mesh)
+                    {
+                        mesh.isVisible = true;
+                        mesh.position = markerPosition.clone();
+                        mesh.scaling = new BABYLON.Vector3(0.03, 0.03, 0.03);
+                    }
+                });
+
+
+            }
+        }
+    }
+
+    const scene2 = async() =>{
+        // clearing previous scene
+        customer.isVisible = false;
+        customerDialog.isVisible = false;
+
+        // main function logic
+        car.addAllToScene();
+        car.meshes[0].position = markerPosition.clone();
+
+        const frontTyre = car.meshes.find(mesh => mesh.id === "Front_wheel.001_Black_0");
+
+        const tireDialog = new BABYLON.GUI.Rectangle("customer_dialog");
+        var nextButton = BABYLON.GUI.Button.CreateSimpleButton("next_button", "Next");
+
+        tireDialog.background = "black"
+        tireDialog.height = "300px";
+        tireDialog.alpha = 0.5;
+        tireDialog.width = "600px";
+        tireDialog.cornerRadius = 20;
+        tireDialog.thickness = 1;
+        tireDialog.zIndex = 5;
+
+        const panel = new BABYLON.GUI.StackPanel();
+        panel.width = "600px";
+        panel.height = "300px";
+        
+        const caption = new BABYLON.GUI.TextBlock();
+        caption.color = "white";
+        caption.text = "To check a car tire, inspect it for damage or wear, check the air pressure with a gauge, and measure tread depth using a tread gauge or the penny test. Look for uneven wear, which could signal alignment issues.";
+        caption.fontSize = "30px";
+        caption.textWrapping = true;
+
+        nextButton.background = "gray";
+        nextButton.height = "0.2";
+        nextButton.width = "0.2";
+        nextButton.fontSize = "20px";
+
+        panel.addControl(caption);
+        panel.addControl(nextButton);
+        tireDialog.addControl(panel);
+
+        advancedTexture.addControl(tireDialog);
+        tireDialog.isVisible = false;
+
+
+        setTimeout(() => {
+            startWorldYAnimation(frontTyre, -8,0,-4, () => {
+                tireDialog.isVisible = true;
+                tireDialog.linkWithMesh(frontTyre);
+            });
+        }, 2000);
+
+
+        // Video.
+        nextButton.onPointerUpObservable.add(async () => {
+            tireDialog.isVisible = false;
+
+            const plane = BABYLON.MeshBuilder.CreatePlane("plane", {
+                    height: 5.4762, 
+                    width: 7.3967, 
+                    sideOrientation: BABYLON.Mesh.DOUBLESIDE
+            } ,scene);
+
+            const material = new BABYLON.StandardMaterial("material", scene);
+            const texture = new BABYLON.VideoTexture("vidtex", ["assets/TireVideo.mp4"], scene, true, true, BABYLON.VideoTexture.TRILINEAR_SAMPLINGMODE, { autoPlay: true, loop: true, muted: true });
+
+
+            material.diffuseTexture = texture;
+            material.emissiveColor = new BABYLON.Color3.White();
+
+
+            plane.material = material;
+
+
+        });
+
+    }
+
+
+
+
+
+    const Scene3 = async() => {
+
+    }
+
+
+
+    // =============== MAIN =========================
+    placeMarker();
+    await scene1();
+
+    nextButton.onPointerUpObservable.add(async () => {
+        await scene2();
+    });
+
     return scene;
-
-}
-
-
-    // END =========================================================================
-
-
-
+};
                 window.initFunction = async function() {
-                    
-                    
-                    
                     var asyncEngineCreation = async function() {
                         try {
                         return createDefaultEngine();
